@@ -10,6 +10,7 @@ const codes = JSON.parse(fs.readFileSync('./codes.json', 'utf-8'));
 
 
 import { REST, Routes, Client, Events, GatewayIntentBits, Partials, SlashCommandBuilder } from "discord.js"
+import axios from 'axios';
 
 const rest = new REST().setToken(process.env.CLIENT_TOKEN);
 
@@ -59,13 +60,19 @@ client.on(Events.InteractionCreate, async interaction => {
   if (commandName === 'access') {
     if (codes[interaction.user.id]) {
       await interaction.reply({
-        content: `You already created an early access code: ${codes[interaction.user.id]}`,
+        content: `You already created an early access code: \`${codes[interaction.user.id]}\``,
         ephemeral: true
       });
+      return
     }
-    const code = Math.random().toString(36).substring(7);
+
+    const baseUrl = process.env.BACKEND_BASE
+
+    const res = await axios.post(baseUrl + '/invitation')
+
+    const code = res.data[0].code;
     await interaction.reply({
-      content: `Here is your early access code: ${code}\nMake sure to checkout the platform and offer your feedback, to get the OG role on discord ;)`,
+      content: `Here is your early access code: \`${code}\`\nMake sure to checkout the platform and offer your feedback, to get the OG role on discord ;)`,
       ephemeral: true
     });
     codes[interaction.user.id] = code;
