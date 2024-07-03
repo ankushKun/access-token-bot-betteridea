@@ -68,7 +68,14 @@ client.on(Events.InteractionCreate, async interaction => {
 
     const baseUrl = process.env.BACKEND_BASE
 
-    const res = await axios.post(baseUrl + '/invitation')
+    const token = process.env.ACCESS_TOKEN;
+    const res = await axios.post(baseUrl + '/invitation', {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    console.log(res.data)
 
     const code = res.data[0].code;
     await interaction.reply({
